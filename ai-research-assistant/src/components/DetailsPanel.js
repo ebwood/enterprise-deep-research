@@ -732,268 +732,269 @@ function DetailsPanel({
                                 else if (section.title.includes('Cancelled')) currentSection = 'cancelled';
 
                                 return (
-                                  <ReactMarkdown
-                                    className="markdown-todo-content"
-                                    components={{
-                                      h1: ({ node, ...props }) => (
-                                        <h1 className="text-2xl font-bold mb-6 pb-3 text-gray-900 border-b-2 border-[#0176d3]" {...props} />
-                                      ),
-                                      h2: ({ node, children, ...props }) => {
-                                        const text = String(children);
+                                  <div className="markdown-todo-content">
+                                    <ReactMarkdown
+                                      components={{
+                                        h1: ({ node, ...props }) => (
+                                          <h1 className="text-2xl font-bold mb-6 pb-3 text-gray-900 border-b-2 border-[#0176d3]" {...props} />
+                                        ),
+                                        h2: ({ node, children, ...props }) => {
+                                          const text = String(children);
 
-                                        // Track current section
-                                        if (text.includes('Pending')) currentSection = 'pending';
-                                        else if (text.includes('Processing')) currentSection = 'processing';
-                                        else if (text.includes('Completed')) currentSection = 'completed';
-                                        else if (text.includes('Cancelled')) currentSection = 'cancelled';
+                                          // Track current section
+                                          if (text.includes('Pending')) currentSection = 'pending';
+                                          else if (text.includes('Processing')) currentSection = 'processing';
+                                          else if (text.includes('Completed')) currentSection = 'completed';
+                                          else if (text.includes('Cancelled')) currentSection = 'cancelled';
 
-                                        // Remove emojis from display text
-                                        const cleanText = text.replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim();
+                                          // Remove emojis from display text
+                                          const cleanText = text.replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim();
 
-                                        let textColor = 'text-gray-700';
+                                          let textColor = 'text-gray-700';
 
-                                        if (text.includes('🎯') || text.includes('Pending') || text.includes('Active')) {
-                                          textColor = 'text-[#0176d3]';
-                                        } else if (text.includes('🔄') || text.includes('Processing')) {
-                                          textColor = 'text-amber-600';
-                                        } else if (text.includes('✅') || text.includes('Completed')) {
-                                          textColor = 'text-[#04844b]';
-                                        } else if (text.includes('❌') || text.includes('Cancelled')) {
-                                          textColor = 'text-slate-500';
-                                        }
-
-                                        return (
-                                          <div className={`flex items-center gap-2 mb-4 mt-6 first:mt-2`}>
-                                            <h2 className={`text-sm font-bold ${textColor}`} {...props}>{cleanText}</h2>
-                                          </div>
-                                        );
-                                      },
-                                      h3: ({ node, ...props }) => (
-                                        <h3 className="text-base font-semibold mb-3 mt-6 text-gray-700" {...props} />
-                                      ),
-                                      ul: ({ node, ...props }) => (
-                                        <ul className="space-y-0.5 my-1" {...props} />
-                                      ),
-                                      li: ({ node, children, ...props }) => {
-                                        // Extract text properly from children (handle React nodes)
-                                        // BUT stop at nested lists to avoid including nested metadata in main text
-                                        const extractText = (node, depth = 0) => {
-                                          if (typeof node === 'string') return node;
-                                          if (Array.isArray(node)) {
-                                            let result = '';
-                                            for (let i = 0; i < node.length; i++) {
-                                              const child = node[i];
-                                              // Check if this is a React element with type 'ul' or 'ol'
-                                              if (child && typeof child === 'object' && child.type) {
-                                                const typeName = typeof child.type === 'string' ? child.type : child.type?.name;
-                                                if (typeName === 'ul' || typeName === 'ol') {
-                                                  // Found nested list, stop here
-                                                  break;
-                                                }
-                                              }
-                                              result += extractText(child, depth + 1);
-                                            }
-                                            return result;
+                                          if (text.includes('🎯') || text.includes('Pending') || text.includes('Active')) {
+                                            textColor = 'text-[#0176d3]';
+                                          } else if (text.includes('🔄') || text.includes('Processing')) {
+                                            textColor = 'text-amber-600';
+                                          } else if (text.includes('✅') || text.includes('Completed')) {
+                                            textColor = 'text-[#04844b]';
+                                          } else if (text.includes('❌') || text.includes('Cancelled')) {
+                                            textColor = 'text-slate-500';
                                           }
-                                          // Check for React elements
-                                          if (node && typeof node === 'object' && node.type) {
-                                            const typeName = typeof node.type === 'string' ? node.type : node.type?.name;
-                                            if (typeName === 'ul' || typeName === 'ol') {
-                                              return '';
-                                            }
-                                          }
-                                          if (node && node.props && node.props.children) {
-                                            return extractText(node.props.children, depth + 1);
-                                          }
-                                          return '';
-                                        };
-
-                                        // Also extract timestamp from nested metadata (before stopping at nested lists)
-                                        const extractTimestamp = (node) => {
-                                          if (typeof node === 'string') {
-                                            const match = node.match(/(\d{2}:\d{2}:\d{2})/);
-                                            return match ? match[1] : '';
-                                          }
-                                          if (Array.isArray(node)) {
-                                            for (let n of node) {
-                                              const ts = extractTimestamp(n);
-                                              if (ts) return ts;
-                                            }
-                                            return '';
-                                          }
-                                          if (node && node.props && node.props.children) {
-                                            return extractTimestamp(node.props.children);
-                                          }
-                                          return '';
-                                        };
-
-                                        const text = extractText(children);
-                                        const timestamp = extractTimestamp(children);
-
-                                        // Skip ALL nested metadata bullets - check for content patterns
-                                        // These include: "From user:", "Created:", "Completed at:", "Reason:", "Found via", etc.
-                                        if (text.match(/^\s*(From user:|Created:|Completed at:|Reason:|Found via|✓ Found via)/i)) {
-                                          return null; // Don't render these nested metadata bullets
-                                        }
-
-                                        // Also skip if the text is wrapped in emphasis/italic (starts with italic content)
-                                        if (text.match(/^\s*[\*_]/) || (Array.isArray(children) && children[0]?.type === 'em')) {
-                                          return null;
-                                        }
-
-                                        const isChecked = text.match(/^\s*\[x\]|^\s*\[X\]/i);
-                                        const isUnchecked = text.match(/^\s*\[ \]/);
-                                        const isStrikethrough = text.match(/^\s*\[~\]/);
-
-                                        if (isChecked || isUnchecked || isStrikethrough) {
-                                          // Determine task status using currentSection
-                                          const isPending = isUnchecked && currentSection === 'pending';
-                                          const isProcessing = isUnchecked && currentSection === 'processing';
-                                          const isCompleted = isChecked;
-                                          const isCancelled = isStrikethrough;
-
-                                          // Increment global task number for each task item
-                                          globalTaskNumber++;
-                                          const currentTaskNumber = globalTaskNumber;
-
-                                          // Extract source from emojis BEFORE cleaning (check original text)
-                                          const hasSteeringEmoji = text.includes('🎯');
-                                          const hasOriginalEmoji = text.includes('📋');
-                                          const hasGapEmoji = text.includes('🔍');
-
-                                          // Clean text from checkbox markers
-                                          let taskText = text.replace(/^\s*\[(x|X| |~)\]\s*/g, '');
-
-                                          // Extract task ID BEFORE removing bold markers (format: **[ID]**)
-                                          const taskIdMatch = taskText.match(/\*\*\[(\d+)\]\*\*/);
-                                          const taskId = taskIdMatch ? taskIdMatch[1] : null;
-
-                                          // Remove bold markers
-                                          taskText = taskText.replace(/\*\*/g, '');
-
-                                          // Remove task ID from text
-                                          taskText = taskText.replace(/\[\d+\]\s*/g, '');
-
-                                          // Remove ALL emojis and unicode symbols from display text
-                                          taskText = taskText
-                                            .replace(/[\u{1F000}-\u{1FFFF}]/gu, '') // All emoji ranges
-                                            .replace(/[\u2600-\u27BF]/g, '') // Misc symbols
-                                            .replace(/[\uE000-\uF8FF]/g, '') // Private use area
-                                            .replace(/✓|✗|⏳|🔄|✅|❌|🎯|📋|🔍|☐|☑|☒/g, '') // Specific symbols
-                                            .trim();
-
-                                          // Final clean display text (no emojis, no task ID, no checkboxes)
-                                          const cleanDisplayText = taskText;
 
                                           return (
-                                            <li className="group mb-2 last:mb-0" {...props}>
-                                              <div className={`relative border transition-all duration-200 overflow-hidden shadow-sm hover:shadow-md ${isCompleted
-                                                ? 'border-[#04844b]/30 bg-gradient-to-r from-[#04844b]/5 to-transparent rounded-lg'
-                                                : isCancelled
-                                                  ? 'border-slate-300 bg-slate-50/80 rounded-lg opacity-75'
-                                                  : 'border-slate-200/70 bg-white rounded-xl hover:border-[#0176d3]/50'
-                                                }`}>
-                                                {/* Left Status Indicator Bar */}
-                                                <div className={`absolute left-0 top-0 bottom-0 w-1 ${isCompleted
-                                                  ? 'bg-gradient-to-b from-[#04844b] to-[#04844b]/60'
+                                            <div className={`flex items-center gap-2 mb-4 mt-6 first:mt-2`}>
+                                              <h2 className={`text-sm font-bold ${textColor}`} {...props}>{cleanText}</h2>
+                                            </div>
+                                          );
+                                        },
+                                        h3: ({ node, ...props }) => (
+                                          <h3 className="text-base font-semibold mb-3 mt-6 text-gray-700" {...props} />
+                                        ),
+                                        ul: ({ node, ...props }) => (
+                                          <ul className="space-y-0.5 my-1" {...props} />
+                                        ),
+                                        li: ({ node, children, ...props }) => {
+                                          // Extract text properly from children (handle React nodes)
+                                          // BUT stop at nested lists to avoid including nested metadata in main text
+                                          const extractText = (node, depth = 0) => {
+                                            if (typeof node === 'string') return node;
+                                            if (Array.isArray(node)) {
+                                              let result = '';
+                                              for (let i = 0; i < node.length; i++) {
+                                                const child = node[i];
+                                                // Check if this is a React element with type 'ul' or 'ol'
+                                                if (child && typeof child === 'object' && child.type) {
+                                                  const typeName = typeof child.type === 'string' ? child.type : child.type?.name;
+                                                  if (typeName === 'ul' || typeName === 'ol') {
+                                                    // Found nested list, stop here
+                                                    break;
+                                                  }
+                                                }
+                                                result += extractText(child, depth + 1);
+                                              }
+                                              return result;
+                                            }
+                                            // Check for React elements
+                                            if (node && typeof node === 'object' && node.type) {
+                                              const typeName = typeof node.type === 'string' ? node.type : node.type?.name;
+                                              if (typeName === 'ul' || typeName === 'ol') {
+                                                return '';
+                                              }
+                                            }
+                                            if (node && node.props && node.props.children) {
+                                              return extractText(node.props.children, depth + 1);
+                                            }
+                                            return '';
+                                          };
+
+                                          // Also extract timestamp from nested metadata (before stopping at nested lists)
+                                          const extractTimestamp = (node) => {
+                                            if (typeof node === 'string') {
+                                              const match = node.match(/(\d{2}:\d{2}:\d{2})/);
+                                              return match ? match[1] : '';
+                                            }
+                                            if (Array.isArray(node)) {
+                                              for (let n of node) {
+                                                const ts = extractTimestamp(n);
+                                                if (ts) return ts;
+                                              }
+                                              return '';
+                                            }
+                                            if (node && node.props && node.props.children) {
+                                              return extractTimestamp(node.props.children);
+                                            }
+                                            return '';
+                                          };
+
+                                          const text = extractText(children);
+                                          const timestamp = extractTimestamp(children);
+
+                                          // Skip ALL nested metadata bullets - check for content patterns
+                                          // These include: "From user:", "Created:", "Completed at:", "Reason:", "Found via", etc.
+                                          if (text.match(/^\s*(From user:|Created:|Completed at:|Reason:|Found via|✓ Found via)/i)) {
+                                            return null; // Don't render these nested metadata bullets
+                                          }
+
+                                          // Also skip if the text is wrapped in emphasis/italic (starts with italic content)
+                                          if (text.match(/^\s*[\*_]/) || (Array.isArray(children) && children[0]?.type === 'em')) {
+                                            return null;
+                                          }
+
+                                          const isChecked = text.match(/^\s*\[x\]|^\s*\[X\]/i);
+                                          const isUnchecked = text.match(/^\s*\[ \]/);
+                                          const isStrikethrough = text.match(/^\s*\[~\]/);
+
+                                          if (isChecked || isUnchecked || isStrikethrough) {
+                                            // Determine task status using currentSection
+                                            const isPending = isUnchecked && currentSection === 'pending';
+                                            const isProcessing = isUnchecked && currentSection === 'processing';
+                                            const isCompleted = isChecked;
+                                            const isCancelled = isStrikethrough;
+
+                                            // Increment global task number for each task item
+                                            globalTaskNumber++;
+                                            const currentTaskNumber = globalTaskNumber;
+
+                                            // Extract source from emojis BEFORE cleaning (check original text)
+                                            const hasSteeringEmoji = text.includes('🎯');
+                                            const hasOriginalEmoji = text.includes('📋');
+                                            const hasGapEmoji = text.includes('🔍');
+
+                                            // Clean text from checkbox markers
+                                            let taskText = text.replace(/^\s*\[(x|X| |~)\]\s*/g, '');
+
+                                            // Extract task ID BEFORE removing bold markers (format: **[ID]**)
+                                            const taskIdMatch = taskText.match(/\*\*\[(\d+)\]\*\*/);
+                                            const taskId = taskIdMatch ? taskIdMatch[1] : null;
+
+                                            // Remove bold markers
+                                            taskText = taskText.replace(/\*\*/g, '');
+
+                                            // Remove task ID from text
+                                            taskText = taskText.replace(/\[\d+\]\s*/g, '');
+
+                                            // Remove ALL emojis and unicode symbols from display text
+                                            taskText = taskText
+                                              .replace(/[\u{1F000}-\u{1FFFF}]/gu, '') // All emoji ranges
+                                              .replace(/[\u2600-\u27BF]/g, '') // Misc symbols
+                                              .replace(/[\uE000-\uF8FF]/g, '') // Private use area
+                                              .replace(/✓|✗|⏳|🔄|✅|❌|🎯|📋|🔍|☐|☑|☒/g, '') // Specific symbols
+                                              .trim();
+
+                                            // Final clean display text (no emojis, no task ID, no checkboxes)
+                                            const cleanDisplayText = taskText;
+
+                                            return (
+                                              <li className="group mb-2 last:mb-0" {...props}>
+                                                <div className={`relative border transition-all duration-200 overflow-hidden shadow-sm hover:shadow-md ${isCompleted
+                                                  ? 'border-[#04844b]/30 bg-gradient-to-r from-[#04844b]/5 to-transparent rounded-lg'
                                                   : isCancelled
-                                                    ? 'bg-slate-400'
-                                                    : isProcessing
-                                                      ? 'bg-gradient-to-b from-amber-600 to-amber-500'
-                                                      : 'bg-gradient-to-b from-[#0176d3] to-[#0176d3]/70'
-                                                  }`}></div>
+                                                    ? 'border-slate-300 bg-slate-50/80 rounded-lg opacity-75'
+                                                    : 'border-slate-200/70 bg-white rounded-xl hover:border-[#0176d3]/50'
+                                                  }`}>
+                                                  {/* Left Status Indicator Bar */}
+                                                  <div className={`absolute left-0 top-0 bottom-0 w-1 ${isCompleted
+                                                    ? 'bg-gradient-to-b from-[#04844b] to-[#04844b]/60'
+                                                    : isCancelled
+                                                      ? 'bg-slate-400'
+                                                      : isProcessing
+                                                        ? 'bg-gradient-to-b from-amber-600 to-amber-500'
+                                                        : 'bg-gradient-to-b from-[#0176d3] to-[#0176d3]/70'
+                                                    }`}></div>
 
-                                                <div className="pl-4 pr-4 py-3">
-                                                  {/* Task Number and Description Line */}
-                                                  <div className="flex items-start gap-2">
-                                                    {/* Bullet - simple dot */}
-                                                    <div className="flex-shrink-0 mt-1">
-                                                      <span className={`font-bold text-sm ${isCompleted
-                                                        ? 'text-[#04844b]'
-                                                        : isCancelled
-                                                          ? 'text-slate-400'
-                                                          : isProcessing
-                                                            ? 'text-amber-600'
-                                                            : 'text-[#0176d3]'
+                                                  <div className="pl-4 pr-4 py-3">
+                                                    {/* Task Number and Description Line */}
+                                                    <div className="flex items-start gap-2">
+                                                      {/* Bullet - simple dot */}
+                                                      <div className="flex-shrink-0 mt-1">
+                                                        <span className={`font-bold text-sm ${isCompleted
+                                                          ? 'text-[#04844b]'
+                                                          : isCancelled
+                                                            ? 'text-slate-400'
+                                                            : isProcessing
+                                                              ? 'text-amber-600'
+                                                              : 'text-[#0176d3]'
+                                                          }`}>
+                                                          •
+                                                        </span>
+                                                      </div>
+
+                                                      {/* Task ID */}
+                                                      {taskId && (
+                                                        <span className="text-xs text-slate-500 font-mono font-medium flex-shrink-0">[{taskId}]</span>
+                                                      )}
+
+                                                      {/* Task Description - Normal for all types */}
+                                                      <div className={`flex-1 text-sm leading-relaxed ${isCancelled
+                                                        ? 'text-slate-800 line-through'
+                                                        : 'text-slate-800'
                                                         }`}>
-                                                        •
-                                                      </span>
+                                                        {cleanDisplayText}
+                                                      </div>
                                                     </div>
 
-                                                    {/* Task ID */}
-                                                    {taskId && (
-                                                      <span className="text-xs text-slate-500 font-mono font-medium flex-shrink-0">[{taskId}]</span>
-                                                    )}
+                                                    {/* Metadata Row - Plain text timestamp + Source badge */}
+                                                    <div className="flex items-center gap-2 ml-5 mt-1.5 flex-wrap">
+                                                      {/* Timestamp - Plain grey text - Show for pending/completed/cancelled, hide for processing */}
+                                                      {timestamp && !isProcessing && (
+                                                        <span className="text-xs text-slate-400 whitespace-nowrap">
+                                                          {isCompleted ? 'Completed' : isCancelled ? 'Cancelled' : 'Created'} {timestamp}
+                                                        </span>
+                                                      )}
 
-                                                    {/* Task Description - Normal for all types */}
-                                                    <div className={`flex-1 text-sm leading-relaxed ${isCancelled
-                                                      ? 'text-slate-800 line-through'
-                                                      : 'text-slate-800'
-                                                      }`}>
-                                                      {cleanDisplayText}
+                                                      {/* Source Badge - Always show */}
+                                                      {hasSteeringEmoji && (
+                                                        <span className="inline-flex items-center px-2 py-0.5 bg-gradient-to-r from-[#0176d3] to-[#014486] text-white text-xs font-semibold rounded whitespace-nowrap">
+                                                          Steering
+                                                        </span>
+                                                      )}
+                                                      {hasOriginalEmoji && (
+                                                        <span className="inline-flex items-center px-2 py-0.5 bg-gradient-to-r from-slate-700 to-slate-600 text-white text-xs font-semibold rounded whitespace-nowrap">
+                                                          Initial Query
+                                                        </span>
+                                                      )}
+                                                      {hasGapEmoji && (
+                                                        <span className="inline-flex items-center px-2 py-0.5 bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 text-xs font-semibold rounded border border-amber-200 whitespace-nowrap">
+                                                          Research Gap
+                                                        </span>
+                                                      )}
                                                     </div>
-                                                  </div>
-
-                                                  {/* Metadata Row - Plain text timestamp + Source badge */}
-                                                  <div className="flex items-center gap-2 ml-5 mt-1.5 flex-wrap">
-                                                    {/* Timestamp - Plain grey text - Show for pending/completed/cancelled, hide for processing */}
-                                                    {timestamp && !isProcessing && (
-                                                      <span className="text-xs text-slate-400 whitespace-nowrap">
-                                                        {isCompleted ? 'Completed' : isCancelled ? 'Cancelled' : 'Created'} {timestamp}
-                                                      </span>
-                                                    )}
-
-                                                    {/* Source Badge - Always show */}
-                                                    {hasSteeringEmoji && (
-                                                      <span className="inline-flex items-center px-2 py-0.5 bg-gradient-to-r from-[#0176d3] to-[#014486] text-white text-xs font-semibold rounded whitespace-nowrap">
-                                                        Steering
-                                                      </span>
-                                                    )}
-                                                    {hasOriginalEmoji && (
-                                                      <span className="inline-flex items-center px-2 py-0.5 bg-gradient-to-r from-slate-700 to-slate-600 text-white text-xs font-semibold rounded whitespace-nowrap">
-                                                        Initial Query
-                                                      </span>
-                                                    )}
-                                                    {hasGapEmoji && (
-                                                      <span className="inline-flex items-center px-2 py-0.5 bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 text-xs font-semibold rounded border border-amber-200 whitespace-nowrap">
-                                                        Research Gap
-                                                      </span>
-                                                    )}
                                                   </div>
                                                 </div>
-                                              </div>
-                                            </li>
-                                          );
-                                        }
+                                              </li>
+                                            );
+                                          }
 
-                                        // Non-task list items (regular bullet points)
-                                        return <li className="flex items-start gap-2 px-3 py-1.5 text-sm leading-relaxed text-slate-700" {...props}>
-                                          <span className="text-slate-400 mt-1.5">•</span>
-                                          <div className="flex-1">{children}</div>
-                                        </li>;
-                                      },
-                                      p: ({ node, ...props }) => (
-                                        <p className="text-slate-700 leading-relaxed mb-4 text-sm" {...props} />
-                                      ),
-                                      strong: ({ node, ...props }) => (
-                                        <strong className="font-semibold text-slate-900" {...props} />
-                                      ),
-                                      em: ({ node, ...props }) => (
-                                        <em className="not-italic text-slate-600 text-sm" {...props} />
-                                      ),
-                                      code: ({ node, inline, ...props }) =>
-                                        inline ? (
-                                          <code className="bg-slate-100 px-2 py-1 rounded text-sm font-mono text-slate-800 border border-slate-200" {...props} />
-                                        ) : (
-                                          <code className="block bg-slate-50 p-4 rounded-lg text-sm font-mono text-slate-800 overflow-x-auto border border-slate-200 my-3" {...props} />
+                                          // Non-task list items (regular bullet points)
+                                          return <li className="flex items-start gap-2 px-3 py-1.5 text-sm leading-relaxed text-slate-700" {...props}>
+                                            <span className="text-slate-400 mt-1.5">•</span>
+                                            <div className="flex-1">{children}</div>
+                                          </li>;
+                                        },
+                                        p: ({ node, ...props }) => (
+                                          <p className="text-slate-700 leading-relaxed mb-4 text-sm" {...props} />
                                         ),
-                                      blockquote: ({ node, ...props }) => (
-                                        <blockquote className="border-l-4 border-[#0176d3] pl-4 py-2 my-4 bg-blue-50 rounded-r italic text-slate-700" {...props} />
-                                      ),
-                                    }}
-                                  >
-                                    {section.content}
-                                  </ReactMarkdown>
+                                        strong: ({ node, ...props }) => (
+                                          <strong className="font-semibold text-slate-900" {...props} />
+                                        ),
+                                        em: ({ node, ...props }) => (
+                                          <em className="not-italic text-slate-600 text-sm" {...props} />
+                                        ),
+                                        code: ({ node, inline, ...props }) =>
+                                          inline ? (
+                                            <code className="bg-slate-100 px-2 py-1 rounded text-sm font-mono text-slate-800 border border-slate-200" {...props} />
+                                          ) : (
+                                            <code className="block bg-slate-50 p-4 rounded-lg text-sm font-mono text-slate-800 overflow-x-auto border border-slate-200 my-3" {...props} />
+                                          ),
+                                        blockquote: ({ node, ...props }) => (
+                                          <blockquote className="border-l-4 border-[#0176d3] pl-4 py-2 my-4 bg-blue-50 rounded-r italic text-slate-700" {...props} />
+                                        ),
+                                      }}
+                                    >
+                                      {section.content}
+                                    </ReactMarkdown>
+                                  </div>
                                 );
                               })()}
                             </CollapsibleSection>

@@ -1,3 +1,10 @@
+from langchain_google_vertexai import ChatVertexAI
+from langchain_groq import ChatGroq
+from langchain_anthropic import ChatAnthropic
+from langchain_openai import ChatOpenAI
+from langchain.chat_models.base import BaseChatModel
+from langchain.schema.messages import ChatMessage
+from langchain.schema import HumanMessage, SystemMessage
 import os
 import time
 import anthropic
@@ -12,13 +19,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Import LangChain and provider-specific packages
-from langchain.schema import HumanMessage, SystemMessage
-from langchain.schema.messages import ChatMessage
-from langchain.chat_models.base import BaseChatModel
-from langchain_openai import ChatOpenAI
-from langchain_anthropic import ChatAnthropic
-from langchain_groq import ChatGroq
-from langchain_google_vertexai import ChatVertexAI
 
 
 # API keys for different providers
@@ -27,6 +27,9 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 SFR_GATEWAY_API_KEY = os.getenv("SFR_GATEWAY_API_KEY")
 SAMBNOVA_API_KEY = os.getenv("SAMBNOVA_API_KEY")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+# For OpenRouter base URL override
+OPENAI_API_BASE = os.getenv("OPENAI_API_BASE")
 GOOGLE_CLOUD_PROJECT = os.getenv("GOOGLE_CLOUD_PROJECT")
 GOOGLE_CLOUD_LOCATION = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
 
@@ -50,7 +53,8 @@ CURRENT_DATE = datetime.now().strftime("%Y-%m-%d")
 CURRENT_YEAR = datetime.now().year
 CURRENT_MONTH = datetime.now().month
 CURRENT_DAY = datetime.now().day
-ONE_YEAR_AGO = datetime.now().replace(year=datetime.now().year - 1).strftime("%Y-%m-%d")
+ONE_YEAR_AGO = datetime.now().replace(
+    year=datetime.now().year - 1).strftime("%Y-%m-%d")
 YTD_START = f"{CURRENT_YEAR}-01-01"
 
 # Define model configurations for each provider
@@ -83,7 +87,8 @@ MODEL_CONFIGS = {
             "claude-sonnet-4",  # New Claude 4 Sonnet (flagship model)
             "claude-sonnet-4-thinking",  # Claude 4 Sonnet with extended thinking mode
             "claude-3-7-sonnet",  # Standard mode Claude 3.7 Sonnet
-            "claude-3-7-sonnet-thinking",  # Claude 3.7 Sonnet with extended thinking mode enabled
+            # Claude 3.7 Sonnet with extended thinking mode enabled
+            "claude-3-7-sonnet-thinking",
             "claude-3-5-sonnet",  # Legacy Claude 3 Sonnet
         ],
         "default_model": "claude-sonnet-4",
@@ -112,6 +117,14 @@ MODEL_CONFIGS = {
         ],
         "default_model": "gemini-2.5-pro",
         "requires_api_key": GOOGLE_CLOUD_PROJECT,
+    },
+    # OpenRouter models
+    "openrouter": {
+        "available_models": [
+            "openai/gpt-4o-mini",
+        ],
+        "default_model": "openai/gpt-4o-mini",
+        "requires_api_key": OPENROUTER_API_KEY,
     },
 }
 
@@ -200,9 +213,10 @@ class SimpleOpenAIClient:
         self._api_key = api_key
         self._max_tokens = max_tokens
         self._client = openai.OpenAI(api_key="dummy",
-        base_url="https://gateway.salesforceresearch.ai/openai/process/v1/",
-        default_headers={"X-Api-Key": "cbd5333186664d57f2ed8bb08d260bf7"},
-    )
+                                     base_url="https://gateway.salesforceresearch.ai/openai/process/v1/",
+                                     default_headers={
+                                         "X-Api-Key": "cbd5333186664d57f2ed8bb08d260bf7"},
+                                     )
 
     @traceable
     def invoke(self, messages, config=None):
@@ -256,7 +270,8 @@ class SimpleOpenAIClient:
                 token_param = {"max_tokens": self._max_tokens}
 
             # Call the OpenAI API directly without temperature
-            print(f"Calling OpenAI API with model {self.model_name} (no temperature)")
+            print(
+                f"Calling OpenAI API with model {self.model_name} (no temperature)")
             response = self._client.chat.completions.create(
                 model=self.model_name,
                 messages=openai_messages,
@@ -348,7 +363,7 @@ class ReasoningEffortOpenAIClient(SimpleOpenAIClient):
                 #     else None
                 # ),
                 # default_headers={"X-Api-Key": "cbd5333186664d57f2ed8bb08d260bf7"},
-                
+
             )
 
             # Return the response content
@@ -401,10 +416,12 @@ class Claude3ExtendedClient:
         self._model_map = {
             # Claude 4 models
             "claude-sonnet-4": "claude-sonnet-4-20250514",
-            "claude-sonnet-4-thinking": "claude-sonnet-4-20250514",  # Same model ID, but with thinking enabled
+            # Same model ID, but with thinking enabled
+            "claude-sonnet-4-thinking": "claude-sonnet-4-20250514",
             # Claude 3.7 models
             "claude-3-7-sonnet": "claude-3-7-sonnet-20250219",
-            "claude-3-7-sonnet-thinking": "claude-3-7-sonnet-20250219",  # Same model ID, but with thinking enabled
+            # Same model ID, but with thinking enabled
+            "claude-3-7-sonnet-thinking": "claude-3-7-sonnet-20250219",
             # Claude 3.5 models
             "claude-3-5-sonnet": "claude-3-5-sonnet-20241022",  # New version
             "claude-3-5-sonnet-old": "claude-3-5-sonnet-20240620",  # Old version
@@ -566,7 +583,8 @@ class Claude3ExtendedClient:
                             role = "user"
                         elif role == "ai":
                             role = "assistant"
-                        filtered_messages.append({"role": role, "content": msg.content})
+                        filtered_messages.append(
+                            {"role": role, "content": msg.content})
             else:  # Dictionary format messages
                 for message in messages:
                     if message["role"] == "system":
@@ -651,7 +669,8 @@ class Claude3ExtendedClient:
                     if trace_id:
                         metadata["ls_trace_id"] = trace_id
                         # Add trace ID to Anthropic request headers if available
-                        api_params["extra_headers"] = {"X-LangSmith-Trace-Id": trace_id}
+                        api_params["extra_headers"] = {
+                            "X-LangSmith-Trace-Id": trace_id}
 
             # Enable streaming for all requests to prevent timeouts on long operations
             api_params["stream"] = True
@@ -784,7 +803,8 @@ class SalesforceResearchClient:
             print(
                 f"Calling Salesforce Research Gateway API with model {self.model_name} (stream={stream})"
             )
-            response = requests.post(url, headers=headers, json=payload, stream=stream)
+            response = requests.post(
+                url, headers=headers, json=payload, stream=stream)
             response.raise_for_status()
 
             if not stream:
@@ -874,7 +894,8 @@ class SalesforceResearchClient:
         try:
             # Make the API request
             print(f"Streaming response from {self.model_name}...")
-            response = requests.post(url, headers=headers, json=payload, stream=True)
+            response = requests.post(
+                url, headers=headers, json=payload, stream=True)
             response.raise_for_status()
 
             # Stream the response in chunks
@@ -906,10 +927,12 @@ class SalesforceResearchClient:
                                             content=current_content, role="ai"
                                         )
                         except Exception as e:
-                            print(f"Error parsing streaming response chunk: {str(e)}")
+                            print(
+                                f"Error parsing streaming response chunk: {str(e)}")
 
         except Exception as e:
-            print(f"Error streaming from Salesforce Research Gateway API: {str(e)}")
+            print(
+                f"Error streaming from Salesforce Research Gateway API: {str(e)}")
             yield ChatMessage(content=f"Error: {str(e)}", role="ai")
 
 
@@ -998,7 +1021,8 @@ class SambNovaClient:
         }
 
         # Prepare the payload
-        payload = {"model": self.model_name, "messages": sn_messages, "stream": stream}
+        payload = {"model": self.model_name,
+                   "messages": sn_messages, "stream": stream}
 
         try:
             # Make the API request
@@ -1109,12 +1133,14 @@ class SambNovaClient:
         }
 
         # Prepare the payload - always stream=True for this method
-        payload = {"model": self.model_name, "messages": sn_messages, "stream": True}
+        payload = {"model": self.model_name,
+                   "messages": sn_messages, "stream": True}
 
         try:
             # Make the API request
             print(f"Streaming response from {self.model_name}...")
-            response = requests.post(url, headers=headers, json=payload, stream=True)
+            response = requests.post(
+                url, headers=headers, json=payload, stream=True)
             response.raise_for_status()
 
             # Stream the response in chunks
@@ -1146,7 +1172,8 @@ class SambNovaClient:
                                             content=current_content, role="ai"
                                         )
                         except Exception as e:
-                            print(f"Error parsing streaming response chunk: {str(e)}")
+                            print(
+                                f"Error parsing streaming response chunk: {str(e)}")
 
         except Exception as e:
             print(f"Error streaming from SambaNova API: {str(e)}")
@@ -1215,7 +1242,8 @@ def get_llm_client(provider, model_name=None):
             )
         else:
             # Use standard ChatOpenAI for other models
-            print(f"Using standard ChatOpenAI for requested model: {model_name}")
+            print(
+                f"Using standard ChatOpenAI for requested model: {model_name}")
             return ChatOpenAI(
                 model_name=model_name.replace(
                     "-reasoning", ""
@@ -1260,7 +1288,8 @@ def get_llm_client(provider, model_name=None):
             return Claude3ExtendedClient(
                 model_name=model_name,
                 api_key=ANTHROPIC_API_KEY,
-                max_tokens=ANTHROPIC_THINKING_BUDGET_TOKENS,  # Using variable instead of hardcoded value
+                # Using variable instead of hardcoded value
+                max_tokens=ANTHROPIC_THINKING_BUDGET_TOKENS,
             )
         else:
             # Use standard ChatAnthropic for others
@@ -1311,7 +1340,26 @@ def get_llm_client(provider, model_name=None):
             project=GOOGLE_CLOUD_PROJECT,
             location=GOOGLE_CLOUD_LOCATION,
             convert_system_message_to_human=True,  # Recommended for Gemini
-            max_output_tokens=GOOGLE_MAX_OUTPUT_TOKENS,  # Using variable instead of hardcoded value
+            # Using variable instead of hardcoded value
+            max_output_tokens=GOOGLE_MAX_OUTPUT_TOKENS,
+        )
+    elif provider == "openrouter":
+        if not OPENROUTER_API_KEY:
+            raise ValueError("OPENROUTER_API_KEY is not set in environment")
+        if not model_name:
+            model_name = MODEL_CONFIGS["openrouter"]["default_model"]
+
+        # Use OPENAI_API_BASE from .env if set, otherwise use default OpenRouter URL
+        base_url = OPENAI_API_BASE if OPENAI_API_BASE else "https://openrouter.ai/api/v1"
+
+        print(f"Using ChatOpenAI (via OpenRouter) for {model_name}")
+        print(f"OpenRouter base_url: {base_url}")
+        return ChatOpenAI(
+            model_name=model_name,
+            api_key=OPENROUTER_API_KEY,
+            base_url=base_url,
+            max_tokens=OPENAI_MAX_TOKENS,  # Reuse OpenAI token limit for now
+            streaming=False,
         )
     else:
         raise ValueError(f"Unsupported provider: {provider}")
@@ -1442,11 +1490,32 @@ async def get_async_llm_client(provider, model_name=None):
             project=GOOGLE_CLOUD_PROJECT,
             location=GOOGLE_CLOUD_LOCATION,
             convert_system_message_to_human=True,  # Recommended for Gemini
-            max_output_tokens=GOOGLE_MAX_OUTPUT_TOKENS,  # Using variable instead of hardcoded value
+            # Using variable instead of hardcoded value
+            max_output_tokens=GOOGLE_MAX_OUTPUT_TOKENS,
+        )
+    elif provider == "openrouter":
+        if not OPENROUTER_API_KEY:
+            raise ValueError("OPENROUTER_API_KEY is not set in environment")
+        if not model_name:
+            model_name = MODEL_CONFIGS["openrouter"]["default_model"]
+
+        # Use OPENAI_API_BASE from .env if set, otherwise use default OpenRouter URL
+        base_url = OPENAI_API_BASE if OPENAI_API_BASE else "https://openrouter.ai/api/v1"
+
+        logger.info(
+            f"[get_async_llm_client] Creating async ChatOpenAI (via OpenRouter) client with model {model_name}"
+        )
+        logger.info(f"[get_async_llm_client] OpenRouter base_url: {base_url}")
+        return ChatOpenAI(
+            model_name=model_name,
+            api_key=OPENROUTER_API_KEY,
+            base_url=base_url,
+            max_tokens=OPENAI_MAX_TOKENS,
+            streaming=False,
         )
     else:
         # For providers that don't have standard async clients via Langchain yet
-        supported_providers = ["openai", "anthropic"]
+        supported_providers = ["openai", "anthropic", "openrouter"]
         if GROQ_API_KEY:
             supported_providers.append("groq")
         if GOOGLE_CLOUD_PROJECT:  # Add google to supported list

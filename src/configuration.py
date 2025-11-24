@@ -17,6 +17,7 @@ class LLMProvider(Enum):
     ANTHROPIC = "anthropic"
     GROQ = "groq"
     GOOGLE = "google"
+    OPENROUTER = "openrouter"
 
 
 class ActivityVerbosity(Enum):
@@ -43,7 +44,8 @@ class Configuration:
             "enable_activity_generation", True
         )
         self._activity_verbosity = kwargs.get("activity_verbosity", "medium")
-        self._activity_llm_provider = kwargs.get("activity_llm_provider", "openai")
+        self._activity_llm_provider = kwargs.get(
+            "activity_llm_provider", "openai")
         self._activity_llm_model = kwargs.get("activity_llm_model", "o3-mini")
 
     @property
@@ -117,7 +119,11 @@ class Configuration:
                     else (
                         "gemini-2.5-pro"
                         if provider_str == "google"
-                        else "gemini-2.5-pro"
+                        else (
+                            "openai/gpt-4o-mini"
+                            if provider_str == "openrouter"
+                            else "gemini-2.5-pro"
+                        )
                     )
                 )
             )

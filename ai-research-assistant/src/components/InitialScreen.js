@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import DatabaseUpload from "./DatabaseUpload"
+import { useState } from "react";
+import DatabaseUpload from "./DatabaseUpload";
 
 // Model options for the dropdown
 const MODEL_OPTIONS = [
@@ -40,6 +40,19 @@ const MODEL_OPTIONS = [
         <path
           d="M239.184 106.203a64.716 64.716 0 0 0-5.576-53.103C219.452 28.459 191 15.784 163.213 21.74A65.586 65.586 0 0 0 52.096 45.22a64.716 64.716 0 0 0-43.23 31.36c-14.31 24.602-11.061 55.634 8.033 76.74a64.665 64.665 0 0 0 5.525 53.102c14.174 24.65 42.644 37.324 70.446 31.36a64.72 64.72 0 0 0 48.754 21.744c28.481.025 53.714-18.361 62.414-45.481a64.767 64.767 0 0 0 43.229-31.36c14.137-24.558 10.875-55.423-8.083-76.483Zm-97.56 136.338a48.397 48.397 0 0 1-31.105-11.255l1.535-.87 51.67-29.825a8.595 8.595 0 0 0 4.247-7.367v-72.85l21.845 12.636c.218.111.37.32.409.563v60.367c-.056 26.818-21.783 48.545-48.601 48.601Zm-104.466-44.61a48.345 48.345 0 0 1-5.781-32.589l1.534.921 51.722 29.826a8.339 8.339 0 0 0 8.441 0l63.181-36.425v25.221a.87.87 0 0 1-.358.665l-52.335 30.184c-23.257 13.398-52.97 5.431-66.404-17.803ZM23.549 85.38a48.499 48.499 0 0 1 25.58-21.333v61.39a8.288 8.288 0 0 0 4.195 7.316l62.874 36.272-21.845 12.636a.819.819 0 0 1-.767 0L41.353 151.53c-23.211-13.454-31.171-43.144-17.804-66.405v.256Zm179.466 41.695-63.08-36.63L161.73 77.86a.819.819 0 0 1 .768 0l52.233 30.184a48.6 48.6 0 0 1-7.316 87.635v-61.391a8.544 8.544 0 0 0-4.4-7.213Zm21.742-32.69-1.535-.922-51.619-30.081a8.39 8.39 0 0 0-8.492 0L99.98 99.808V74.587a.716.716 0 0 1 .307-.665l52.233-30.133a48.652 48.652 0 0 1 72.236 50.391v.205ZM88.061 139.097l-21.845-12.585a.87.87 0 0 1-.41-.614V65.685a48.652 48.652 0 0 1 79.757-37.346l-1.535.87-51.67 29.825a8.595 8.595 0 0 0-4.246 7.367l-.051 72.697Zm11.868-25.58 28.138-16.217 28.188 16.218v32.434l-28.086 16.218-28.188-16.218-.052-32.434Z"
           fill="#10A37F"
+        />
+      </svg>
+    ),
+  },
+  {
+    key: "openrouter-gpt-4o-mini",
+    label: "gpt-4o-mini (OR)",
+    model: "openai/gpt-4o-mini",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 256 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M239.184 106.203a64.716 64.716 0 0 0-5.576-53.103C219.452 28.459 191 15.784 163.213 21.74A65.586 65.586 0 0 0 52.096 45.22a64.716 64.716 0 0 0-43.23 31.36c-14.31 24.602-11.061 55.634 8.033 76.74a64.665 64.665 0 0 0 5.525 53.102c14.174 24.65 42.644 37.324 70.446 31.36a64.72 64.72 0 0 0 48.754 21.744c28.481.025 53.714-18.361 62.414-45.481a64.767 64.767 0 0 0 43.229-31.36c14.137-24.558 10.875-55.423-8.083-76.483Zm-97.56 136.338a48.397 48.397 0 0 1-31.105-11.255l1.535-.87 51.67-29.825a8.595 8.595 0 0 0 4.247-7.367v-72.85l21.845 12.636c.218.111.37.32.409.563v60.367c-.056 26.818-21.783 48.545-48.601 48.601Zm-104.466-44.61a48.345 48.345 0 0 1-5.781-32.589l1.534.921 51.722 29.826a8.339 8.339 0 0 0 8.441 0l63.181-36.425v25.221a.87.87 0 0 1-.358.665l-52.335 30.184c-23.257 13.398-52.97 5.431-66.404-17.803ZM23.549 85.38a48.499 48.499 0 0 1 25.58-21.333v61.39a8.288 8.288 0 0 0 4.195 7.316l62.874 36.272-21.845 12.636a.819.819 0 0 1-.767 0L41.353 151.53c-23.211-13.454-31.171-43.144-17.804-66.405v.256Zm179.466 41.695-63.08-36.63L161.73 77.86a.819.819 0 0 1 .768 0l52.233 30.184a48.6 48.6 0 0 1-7.316 87.635v-61.391a8.544 8.544 0 0 0-4.4-7.213Zm21.742-32.69-1.535-.922-51.619-30.081a8.39 8.39 0 0 0-8.492 0L99.98 99.808V74.587a.716.716 0 0 1 .307-.665l52.233-30.133a48.652 48.652 0 0 1 72.236 50.391v.205ZM88.061 139.097l-21.845-12.585a.87.87 0 0 1-.41-.614V65.685a48.652 48.652 0 0 1 79.757-37.346l-1.535.87-51.67 29.825a8.595 8.595 0 0 0-4.246 7.367l-.051 72.697Zm11.868-25.58 28.138-16.217 28.188 16.218v32.434l-28.086 16.218-28.188-16.218-.052-32.434Z"
+          fill="#7450fd"
         />
       </svg>
     ),
@@ -96,45 +109,45 @@ const MODEL_OPTIONS = [
       </svg>
     ),
   },
-]
+];
 
 // Suggested questions for different modes
 const INVESTIGATE_QUERIES = [
   "Where were the Vietnamese specimens described by Kuznetzov in Nedoshivina's 2010 paper eventually deposited? Just give the city name.",
   "What was the actual enrollment count of the clinical trial on H. pylori in acne vulgaris patients from Jan–May 2018 as listed on the NIH website?",
   "A paper about AI regulation first submitted to arXiv in June 2022 shows a figure with three axes, each axis labelled at both ends. Which of those label words is also used to describe a type of society in a Physics & Society article submitted on 11 Aug 2016?"
-]
+];
 
 // Suggested questions
 const RESEARCH_REPORT_QUERIES = [
   "What are the latest developments in renewable energy technologies?",
   "What are the key considerations for enterprise AI adoption and implementation?",
   "How is artificial intelligence transforming healthcare?",
-]
+];
 
 export default function InitialScreen({ onBeginResearch }) {
-  const [question, setQuestion] = useState("")
-  const [effortLevel, setEffortLevel] = useState("standard")
-  const [selectedModel, setSelectedModel] = useState("google-gemini")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [lastSubmitTime, setLastSubmitTime] = useState(0)
-  const [mode, setMode] = useState("report")
-  const [uploadedFiles, setUploadedFiles] = useState([])
-  const [uploadedFileContents, setUploadedFileContents] = useState([])
-  const [isDragging, setIsDragging] = useState(false)
+  const [question, setQuestion] = useState("");
+  const [effortLevel, setEffortLevel] = useState("standard");
+  const [selectedModel, setSelectedModel] = useState("google-gemini");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [lastSubmitTime, setLastSubmitTime] = useState(0);
+  const [mode, setMode] = useState("report");
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [uploadedFileContents, setUploadedFileContents] = useState([]);
+  const [isDragging, setIsDragging] = useState(false);
 
   // New state for Investigate mode file analysis
-  const [investigateFiles, setInvestigateFiles] = useState([])
-  const [investigateFileContents, setInvestigateFileContents] = useState([])
-  const [isInvestigateDragging, setIsInvestigateDragging] = useState(false)
-  const [fileAnalysisResults, setFileAnalysisResults] = useState({})
+  const [investigateFiles, setInvestigateFiles] = useState([]);
+  const [investigateFileContents, setInvestigateFileContents] = useState([]);
+  const [isInvestigateDragging, setIsInvestigateDragging] = useState(false);
+  const [fileAnalysisResults, setFileAnalysisResults] = useState({});
 
 
   const processFiles = (files) => {
     if (files.length > 0) {
-      const newFiles = []
-      const newContents = []
-      let filesProcessed = 0
+      const newFiles = [];
+      const newContents = [];
+      let filesProcessed = 0;
 
       files.forEach((file) => {
         const allowedExtensions = [
@@ -154,165 +167,165 @@ export default function InitialScreen({ onBeginResearch }) {
           ".db",
           ".sqlite",
           ".sqlite3",
-        ]
-        const fileExtension = "." + file.name.split(".").pop().toLowerCase()
+        ];
+        const fileExtension = "." + file.name.split(".").pop().toLowerCase();
 
         if (!allowedExtensions.includes(fileExtension)) {
-          console.warn(`File ${file.name} is not a supported format. Skipping.`)
-          filesProcessed++
+          console.warn(`File ${file.name} is not a supported format. Skipping.`);
+          filesProcessed++;
           if (filesProcessed === files.length) {
-            setUploadedFiles([...uploadedFiles, ...newFiles])
-            setUploadedFileContents([...uploadedFileContents, ...newContents])
+            setUploadedFiles([...uploadedFiles, ...newFiles]);
+            setUploadedFileContents([...uploadedFileContents, ...newContents]);
           }
-          return
+          return;
         }
 
-        newFiles.push(file)
+        newFiles.push(file);
 
         // Handle database files differently
         if (['.db', '.sqlite', '.sqlite3', '.csv', '.json'].includes(fileExtension)) {
           // For database files, we'll upload them to the database API
-          uploadDatabaseFile(file, filesProcessed, files.length, newFiles, newContents)
+          uploadDatabaseFile(file, filesProcessed, files.length, newFiles, newContents);
         } else {
           // For text files, read the content
-          const reader = new FileReader()
+          const reader = new FileReader();
 
           reader.onload = (e) => {
-            const content = e.target.result
+            const content = e.target.result;
             newContents.push({
               filename: file.name,
               content: content,
               size: file.size,
               type: 'text'
-            })
-            filesProcessed++
+            });
+            filesProcessed++;
 
             if (filesProcessed === files.length) {
-              setUploadedFiles([...uploadedFiles, ...newFiles])
-              setUploadedFileContents([...uploadedFileContents, ...newContents])
+              setUploadedFiles([...uploadedFiles, ...newFiles]);
+              setUploadedFileContents([...uploadedFileContents, ...newContents]);
             }
-          }
+          };
 
           reader.onerror = (e) => {
-            console.error(`Error reading file ${file.name}:`, e)
-            filesProcessed++
+            console.error(`Error reading file ${file.name}:`, e);
+            filesProcessed++;
 
             if (filesProcessed === files.length) {
-              setUploadedFiles([...uploadedFiles, ...newFiles])
-              setUploadedFileContents([...uploadedFileContents, ...newContents])
+              setUploadedFiles([...uploadedFiles, ...newFiles]);
+              setUploadedFileContents([...uploadedFileContents, ...newContents]);
             }
-          }
+          };
 
-          reader.readAsText(file)
+          reader.readAsText(file);
         }
-      })
+      });
     }
-  }
+  };
 
   const handleFileChange = (event) => {
-    const files = Array.from(event.target.files)
-    processFiles(files)
-  }
+    const files = Array.from(event.target.files);
+    processFiles(files);
+  };
 
   const handleDragEnter = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(true)
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
 
   const handleDragLeave = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
     if (!e.currentTarget.contains(e.relatedTarget)) {
-      setIsDragging(false)
+      setIsDragging(false);
     }
-  }
+  };
 
   const handleDragOver = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-  }
+    e.preventDefault();
+    e.stopPropagation();
+  };
 
   const handleDrop = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(false)
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
 
-    const files = Array.from(e.dataTransfer.files)
-    processFiles(files)
-  }
+    const files = Array.from(e.dataTransfer.files);
+    processFiles(files);
+  };
 
   const removeFile = (indexToRemove) => {
-    setUploadedFiles(uploadedFiles.filter((_, index) => index !== indexToRemove))
-    setUploadedFileContents(uploadedFileContents.filter((_, index) => index !== indexToRemove))
-  }
+    setUploadedFiles(uploadedFiles.filter((_, index) => index !== indexToRemove));
+    setUploadedFileContents(uploadedFileContents.filter((_, index) => index !== indexToRemove));
+  };
 
   // New functions for Investigate mode file handling
   const processInvestigateFiles = async (files) => {
     if (files.length > 0) {
-      const newFiles = []
-      const newAnalysisResults = { ...fileAnalysisResults }
+      const newFiles = [];
+      const newAnalysisResults = { ...fileAnalysisResults };
 
       for (const file of files) {
         const allowedExtensions = [
           ".txt", ".md", ".markdown", ".pdf", ".docx", ".csv", ".xlsx", ".xls",
           ".json", ".xml", ".jpg", ".jpeg", ".png", ".gif", ".mp3", ".wav", ".mp4"
-        ]
-        const fileExtension = "." + file.name.split(".").pop().toLowerCase()
+        ];
+        const fileExtension = "." + file.name.split(".").pop().toLowerCase();
 
         if (!allowedExtensions.includes(fileExtension)) {
-          console.warn(`File ${file.name} is not a supported format for analysis. Skipping.`)
-          continue
+          console.warn(`File ${file.name} is not a supported format for analysis. Skipping.`);
+          continue;
         }
 
-        newFiles.push(file)
+        newFiles.push(file);
 
         // Set initial processing status
         newAnalysisResults[file.name] = {
           fileId: null,
           status: 'processing',
           content: null
-        }
+        };
 
         // Try to upload and analyze file
         try {
           // Detect the correct API base URL
           // If we're on a development port (3000, 3001, etc.), use localhost:8000 for the backend
-          const currentPort = window.location.port
-          const isDevelopment = currentPort && (currentPort.startsWith('30') || currentPort === '3000' || currentPort === '3001')
-          const apiBaseUrl = isDevelopment ? 'http://localhost:8000' : ''
+          const currentPort = window.location.port;
+          const isDevelopment = currentPort && (currentPort.startsWith('30') || currentPort === '3000' || currentPort === '3001');
+          const apiBaseUrl = isDevelopment ? 'http://localhost:8000' : '';
 
-          const formData = new FormData()
-          formData.append('file', file)
-          formData.append('analyze_immediately', 'true')
-          formData.append('analysis_type', 'quick')
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('analyze_immediately', 'true');
+          formData.append('analysis_type', 'quick');
 
 
           const response = await fetch(`${apiBaseUrl}/api/files/upload`, {
             method: 'POST',
             body: formData
-          })
+          });
 
           if (response.ok) {
-            const result = await response.json()
+            const result = await response.json();
             newAnalysisResults[file.name] = {
               fileId: result.file_id,
               status: 'processing',
               content: null
-            }
+            };
 
             // Poll for analysis results
-            pollAnalysisResult(result.file_id, file.name, apiBaseUrl)
+            pollAnalysisResult(result.file_id, file.name, apiBaseUrl);
           } else {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
           }
         } catch (error) {
-          console.error(`Error uploading file ${file.name}:`, error)
+          console.error(`Error uploading file ${file.name}:`, error);
 
           // Fallback: Basic file content reading for text files
           if (['.txt', '.md', '.markdown', '.json', '.csv'].includes(fileExtension)) {
             try {
-              const content = await readFileContent(file)
+              const content = await readFileContent(file);
               newAnalysisResults[file.name] = {
                 status: 'completed',
                 content: `File content preview: ${content.substring(0, 500)}${content.length > 500 ? '...' : ''}`,
@@ -321,47 +334,47 @@ export default function InitialScreen({ onBeginResearch }) {
                   file_size: file.size,
                   fallback: true
                 }
-              }
+              };
             } catch (readError) {
               newAnalysisResults[file.name] = {
                 status: 'error',
                 content: `File Analysis API not available. Error: ${error.message}. Please ensure the backend server is running with file analysis endpoints.`
-              }
+              };
             }
           } else {
             newAnalysisResults[file.name] = {
               status: 'error',
               content: `File Analysis API not available. Error: ${error.message}. Please ensure the backend server is running with file analysis endpoints.`
-            }
+            };
           }
         }
       }
 
-      setInvestigateFiles([...investigateFiles, ...newFiles])
-      setFileAnalysisResults(newAnalysisResults)
+      setInvestigateFiles([...investigateFiles, ...newFiles]);
+      setFileAnalysisResults(newAnalysisResults);
     }
-  }
+  };
 
   // Helper function to read text file content
   const readFileContent = (file) => {
     return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = (e) => resolve(e.target.result)
-      reader.onerror = (e) => reject(e)
-      reader.readAsText(file)
-    })
-  }
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.onerror = (e) => reject(e);
+      reader.readAsText(file);
+    });
+  };
 
   const pollAnalysisResult = async (fileId, fileName, apiBaseUrl) => {
-    const maxAttempts = 30 // 30 attempts * 2 seconds = 1 minute max
-    let attempts = 0
+    const maxAttempts = 30; // 30 attempts * 2 seconds = 1 minute max
+    let attempts = 0;
 
     const poll = async () => {
       try {
-        const response = await fetch(`${apiBaseUrl}/api/files/${fileId}/analysis`)
+        const response = await fetch(`${apiBaseUrl}/api/files/${fileId}/analysis`);
 
         if (response.ok) {
-          const analysis = await response.json()
+          const analysis = await response.json();
 
           setFileAnalysisResults(prev => ({
             ...prev,
@@ -372,12 +385,12 @@ export default function InitialScreen({ onBeginResearch }) {
               metadata: analysis.metadata || {},
               fullAnalysis: analysis // Store the full response for debugging
             }
-          }))
+          }));
         } else if (response.status === 404 && attempts < maxAttempts) {
-          attempts++
-          setTimeout(poll, 2000)
+          attempts++;
+          setTimeout(poll, 2000);
         } else {
-          console.error(`Failed to get analysis for ${fileName}:`, response.status, response.statusText)
+          console.error(`Failed to get analysis for ${fileName}:`, response.status, response.statusText);
           setFileAnalysisResults(prev => ({
             ...prev,
             [fileName]: {
@@ -385,10 +398,10 @@ export default function InitialScreen({ onBeginResearch }) {
               status: 'error',
               content: `Analysis failed: HTTP ${response.status}`
             }
-          }))
+          }));
         }
       } catch (error) {
-        console.error(`Error polling analysis for ${fileName}:`, error)
+        console.error(`Error polling analysis for ${fileName}:`, error);
         setFileAnalysisResults(prev => ({
           ...prev,
           [fileName]: {
@@ -396,78 +409,78 @@ export default function InitialScreen({ onBeginResearch }) {
             status: 'error',
             content: `Analysis error: ${error.message}`
           }
-        }))
+        }));
       }
-    }
+    };
 
-    poll()
-  }
+    poll();
+  };
 
   const handleInvestigateFileChange = (event) => {
-    const files = Array.from(event.target.files)
-    processInvestigateFiles(files)
-  }
+    const files = Array.from(event.target.files);
+    processInvestigateFiles(files);
+  };
 
   const handleInvestigateDragEnter = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsInvestigateDragging(true)
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setIsInvestigateDragging(true);
+  };
 
   const handleInvestigateDragLeave = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
     if (!e.currentTarget.contains(e.relatedTarget)) {
-      setIsInvestigateDragging(false)
+      setIsInvestigateDragging(false);
     }
-  }
+  };
 
   const handleInvestigateDragOver = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-  }
+    e.preventDefault();
+    e.stopPropagation();
+  };
 
   const handleInvestigateDrop = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsInvestigateDragging(false)
+    e.preventDefault();
+    e.stopPropagation();
+    setIsInvestigateDragging(false);
 
-    const files = Array.from(e.dataTransfer.files)
-    processInvestigateFiles(files)
-  }
+    const files = Array.from(e.dataTransfer.files);
+    processInvestigateFiles(files);
+  };
 
   const removeInvestigateFile = (indexToRemove) => {
-    const fileToRemove = investigateFiles[indexToRemove]
-    setInvestigateFiles(investigateFiles.filter((_, index) => index !== indexToRemove))
+    const fileToRemove = investigateFiles[indexToRemove];
+    setInvestigateFiles(investigateFiles.filter((_, index) => index !== indexToRemove));
 
     // Remove from analysis results
-    const newResults = { ...fileAnalysisResults }
-    delete newResults[fileToRemove.name]
-    setFileAnalysisResults(newResults)
-  }
+    const newResults = { ...fileAnalysisResults };
+    delete newResults[fileToRemove.name];
+    setFileAnalysisResults(newResults);
+  };
 
   const handleSubmit = () => {
-    const now = Date.now()
-    const DEBOUNCE_TIME = 3000
+    const now = Date.now();
+    const DEBOUNCE_TIME = 3000;
 
     if (isSubmitting) {
-      return
+      return;
     }
 
     if (now - lastSubmitTime < DEBOUNCE_TIME) {
-      return
+      return;
     }
 
-    setIsSubmitting(true)
-    setLastSubmitTime(now)
+    setIsSubmitting(true);
+    setLastSubmitTime(now);
 
-    const minimumEffort = effortLevel === "quick"
-    const extraEffort = effortLevel === "high"
+    const minimumEffort = effortLevel === "quick";
+    const extraEffort = effortLevel === "high";
 
-    const selectedModelOption = MODEL_OPTIONS.find((opt) => opt.key === selectedModel)
+    const selectedModelOption = MODEL_OPTIONS.find((opt) => opt.key === selectedModel);
 
-    const [provider] = selectedModelOption.key.split("-", 2)
-    const modelName = selectedModelOption.model
+    const [provider] = selectedModelOption.key.split("-", 2);
+    const modelName = selectedModelOption.model;
 
     // Prepare file content for the research request
     const fileContent = mode === "ask" ?
@@ -478,7 +491,7 @@ export default function InitialScreen({ onBeginResearch }) {
           content: result.content,
           metadata: result.metadata
         })) :
-      uploadedFileContents
+      uploadedFileContents;
 
     // Extract database information for the agent
     const databaseInfo = uploadedFileContents
@@ -488,7 +501,7 @@ export default function InitialScreen({ onBeginResearch }) {
         database_id: content.database_id,
         tables: content.tables,
         type: 'database'
-      }))
+      }));
 
     onBeginResearch(
       question || "Please provide information on this topic",
@@ -501,31 +514,31 @@ export default function InitialScreen({ onBeginResearch }) {
       },
       fileContent,
       databaseInfo, // Pass database information to the research agent
-    )
+    );
 
     setTimeout(() => {
-      setIsSubmitting(false)
-    }, DEBOUNCE_TIME)
-  }
+      setIsSubmitting(false);
+    }, DEBOUNCE_TIME);
+  };
 
   const selectSuggestion = (suggestion) => {
-    setQuestion(suggestion)
-  }
+    setQuestion(suggestion);
+  };
 
 
   const uploadDatabaseFile = async (file, filesProcessed, totalFiles, newFiles, newContents) => {
     try {
-      const apiBaseUrl = getApiBaseUrl()
-      const formData = new FormData()
-      formData.append('file', file)
+      const apiBaseUrl = getApiBaseUrl();
+      const formData = new FormData();
+      formData.append('file', file);
 
       const response = await fetch(`${apiBaseUrl}/api/database/upload`, {
         method: 'POST',
         body: formData
-      })
+      });
 
       if (response.ok) {
-        const result = await response.json()
+        const result = await response.json();
         newContents.push({
           filename: file.name,
           content: `Database uploaded successfully. Tables: ${result.tables.join(', ')}`,
@@ -533,18 +546,18 @@ export default function InitialScreen({ onBeginResearch }) {
           type: 'database',
           database_id: result.database_id,
           tables: result.tables
-        })
+        });
 
         // Database uploaded successfully
       } else {
-        const errorData = await response.json()
+        const errorData = await response.json();
         newContents.push({
           filename: file.name,
           content: `Database upload failed: ${errorData.detail || response.statusText}`,
           size: file.size,
           type: 'database',
           error: true
-        })
+        });
       }
     } catch (error) {
       newContents.push({
@@ -553,21 +566,21 @@ export default function InitialScreen({ onBeginResearch }) {
         size: file.size,
         type: 'database',
         error: true
-      })
+      });
     }
 
-    filesProcessed++
+    filesProcessed++;
     if (filesProcessed === totalFiles) {
-      setUploadedFiles([...uploadedFiles, ...newFiles])
-      setUploadedFileContents([...uploadedFileContents, ...newContents])
+      setUploadedFiles([...uploadedFiles, ...newFiles]);
+      setUploadedFileContents([...uploadedFileContents, ...newContents]);
     }
-  }
+  };
 
   const getApiBaseUrl = () => {
-    const currentPort = window.location.port
-    const isDevelopment = currentPort && (currentPort.startsWith('30') || currentPort === '3000' || currentPort === '3001')
-    return isDevelopment ? 'http://localhost:8000' : ''
-  }
+    const currentPort = window.location.port;
+    const isDevelopment = currentPort && (currentPort.startsWith('30') || currentPort === '3000' || currentPort === '3001');
+    return isDevelopment ? 'http://localhost:8000' : '';
+  };
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-[#f3f3f3] py-8 px-4">
@@ -686,10 +699,10 @@ export default function InitialScreen({ onBeginResearch }) {
                   {uploadedFiles.length > 0 && (
                     <div className="mt-6 space-y-2">
                       {uploadedFiles.map((file, index) => {
-                        const fileContent = uploadedFileContents[index]
-                        const isDatabase = fileContent && fileContent.type === 'database'
-                        const fileExtension = '.' + file.name.split('.').pop().toLowerCase()
-                        const isDbFile = ['.db', '.sqlite', '.sqlite3', '.csv', '.json'].includes(fileExtension)
+                        const fileContent = uploadedFileContents[index];
+                        const isDatabase = fileContent && fileContent.type === 'database';
+                        const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+                        const isDbFile = ['.db', '.sqlite', '.sqlite3', '.csv', '.json'].includes(fileExtension);
 
                         return (
                           <div
@@ -736,7 +749,7 @@ export default function InitialScreen({ onBeginResearch }) {
                               </svg>
                             </button>
                           </div>
-                        )
+                        );
                       })}
                     </div>
                   )}
@@ -893,6 +906,5 @@ export default function InitialScreen({ onBeginResearch }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
-
