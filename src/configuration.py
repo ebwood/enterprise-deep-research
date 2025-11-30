@@ -107,6 +107,9 @@ class Configuration:
             return self._llm_model
 
         provider_str = os.environ.get("LLM_PROVIDER")
+        # For openrouter, check OPENROUTER_MODEL env var first
+        openrouter_default = os.environ.get(
+            "OPENROUTER_MODEL", "openai/gpt-4o-mini")
         return os.environ.get("LLM_MODEL") or (
             "o3-mini"
             if provider_str == "openai"
@@ -120,7 +123,7 @@ class Configuration:
                         "gemini-2.5-pro"
                         if provider_str == "google"
                         else (
-                            "openai/gpt-4o-mini"
+                            openrouter_default
                             if provider_str == "openrouter"
                             else "gemini-2.5-pro"
                         )

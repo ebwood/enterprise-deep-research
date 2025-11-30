@@ -28,6 +28,9 @@ ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 SFR_GATEWAY_API_KEY = os.getenv("SFR_GATEWAY_API_KEY")
 SAMBNOVA_API_KEY = os.getenv("SAMBNOVA_API_KEY")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+# OpenRouter model configuration (can be overridden via .env)
+OPENROUTER_MODEL = os.getenv(
+    "OPENROUTER_MODEL", "openai/gpt-4o-mini")
 # For OpenRouter base URL override
 OPENAI_API_BASE = os.getenv("OPENAI_API_BASE")
 GOOGLE_CLOUD_PROJECT = os.getenv("GOOGLE_CLOUD_PROJECT")
@@ -118,12 +121,15 @@ MODEL_CONFIGS = {
         "default_model": "gemini-2.5-pro",
         "requires_api_key": GOOGLE_CLOUD_PROJECT,
     },
-    # OpenRouter models
+    # OpenRouter models (model configurable via OPENROUTER_MODEL env var)
     "openrouter": {
         "available_models": [
+            "google/gemini-2.5-pro-preview-03-25",
             "openai/gpt-4o-mini",
+            "anthropic/claude-3.5-sonnet",
+            "meta-llama/llama-3.3-70b-instruct",
         ],
-        "default_model": "openai/gpt-4o-mini",
+        "default_model": OPENROUTER_MODEL,
         "requires_api_key": OPENROUTER_API_KEY,
     },
 }
